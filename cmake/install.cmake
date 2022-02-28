@@ -1,3 +1,5 @@
+set(namespace MPI)
+
 # --- BOILERPLATE: install / packaging
 
 include(CMakePackageConfigHelpers)
@@ -13,7 +15,7 @@ COMPATIBILITY SameMinorVersion
 )
 
 install(EXPORT ${PROJECT_NAME}-targets
-NAMESPACE ${PROJECT_NAME}::
+NAMESPACE ${namespace}::
 DESTINATION cmake
 )
 
