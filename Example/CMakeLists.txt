@@ -32,3 +32,18 @@ endif()
 add_executable(main_fortran main.f90)
 target_link_libraries(main_fortran PRIVATE MPI::MPI_Fortran)
 add_test(NAME MPIstubFortran COMMAND main_fortran)
+
+if(WIN32 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.22)
+  # in case MPI is shared lib, need DLL on PATH
+  get_target_property(imtype MPI::MPI_C TYPE)
+  if(imtype STREQUAL SHARED_LIBRARY)
+    get_target_property(imconf MPI::MPI_C IMPORTED_CONFIGURATIONS)
+    list(GET imconf 0 imconf)
+    get_target_property(imloc MPI::MPI_C IMPORTED_LOCATION_${imconf})
+    cmake_path(GET imloc PARENT_PATH imloc)
+
+    set_tests_properties(MPIstubC MPIstubC++ MPIstubFortran PROPERTIES
+    ENVIRONMENT_MODIFICATION PATH=path_list_append:${imloc}
+    )
+  endif()
+endif()
