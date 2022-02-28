@@ -23,6 +23,13 @@ LIBSEQ_INT LIBSEQ_CALL MPI_Comm_rank( MPI_Comm comm, LIBSEQ_INT *rank)
   *rank=0;
   return 0;
 }
+
+LIBSEQ_INT LIBSEQ_CALL MPI_Comm_size( MPI_Comm comm, LIBSEQ_INT *size)
+{
+  *size=1;
+  return 0;
+}
+
 LIBSEQ_INT LIBSEQ_CALL MPI_Finalize(void)
 {
    return 0;

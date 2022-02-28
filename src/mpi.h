@@ -51,6 +51,7 @@ static MPI_Comm MPI_COMM_WORLD=(MPI_Comm)0;
 
 LIBSEQ_INT LIBSEQ_CALL MPI_Init(LIBSEQ_INT *pargc, char ***pargv);
 LIBSEQ_INT LIBSEQ_CALL MPI_Comm_rank(LIBSEQ_INT  comm, LIBSEQ_INT  *rank);
+LIBSEQ_INT LIBSEQ_CALL MPI_Comm_size(LIBSEQ_INT  comm, LIBSEQ_INT  *size);
 LIBSEQ_INT LIBSEQ_CALL MPI_Finalize(void);
 
 /* For MPI_IS_IN_PLACE tests */
