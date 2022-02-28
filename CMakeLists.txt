@@ -39,6 +39,10 @@ target_include_directories(mpi_fortran INTERFACE
 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
+if(MPI1)
+  target_sources(mpi_fortran PRIVATE src/mpi_legacy.f90)
+  # use MUMPS::MPISEQ to avoid symbol clashes
+endif()
 set_target_properties(mpi_fortran PROPERTIES
 EXPORT_NAME MPI_Fortran
 Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include
