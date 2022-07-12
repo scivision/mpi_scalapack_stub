@@ -7,8 +7,7 @@ VERSION 1.0.1
 
 # test by linking to example/ project
 
-option(MPI1 "Build MPI-1 stub")
-option(fortran "Build MPI::MPI_Fortran" ON)
+include(cmake/options.cmake)
 
 if(fortran)
   enable_language(Fortran)

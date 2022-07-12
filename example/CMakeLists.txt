@@ -27,10 +27,13 @@ add_test(NAME MPIstubC++ COMMAND main_cpp)
 dll_test_path(MPI::MPI_CXX "MPIstubC++")
 
 if(fortran)
+  set(CMAKE_REQUIRED_LIBRARIES MPI::MPI_Fortran)
   check_source_compiles(Fortran
   "program a
   implicit none (type, external)
   external :: mpi_finalize
+  integer :: ierr
+  call mpi_finalize(ierr)
   end program"
   HAS_MPI_FINALIZE
   )
