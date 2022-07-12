@@ -1,8 +1,6 @@
 name: ci
 
 env:
-  CTEST_PARALLEL_LEVEL: 2
-  CMAKE_BUILD_TYPE: Release
   HOMEBREW_NO_INSTALL_CLEANUP: 1
 
 on:
@@ -37,15 +35,15 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Config library
-      run: cmake -B build -DMPI1:BOOL=on --install-prefix=${{ github.workspace }}/.. -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
+      run: cmake -B build -DMPI1:BOOL=on --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
     - name: build library
       run: cmake --build build --parallel
     - name: install library
       run: cmake --install build
 
-    - name: Config Example
-      run: cmake -S Example -B Example/build -DCMAKE_PREFIX_PATH=${{ github.workspace }}/..
+    - name: Config example
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
     - name: build example
-      run: cmake --build Example/build --parallel
+      run: cmake --build example/build --parallel
     - name: test example
-      run: ctest --test-dir Example/build -V
+      run: ctest --test-dir example/build -V

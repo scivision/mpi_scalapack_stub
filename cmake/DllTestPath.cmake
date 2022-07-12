@@ -12,7 +12,7 @@ endif()
 
 
 get_target_property(imtype ${lib} TYPE)
-if(NOT imtype STREQUAL SHARED_LIBRARY)
+if(NOT imtype STREQUAL "SHARED_LIBRARY")
   message(DEBUG "${lib} is not a shared library, no need for ENVIRONMENT_MODIFICATION for ${test_names}")
   return()
 endif()

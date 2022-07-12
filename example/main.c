@@ -1,19 +1,24 @@
 #include <stdio.h>
+
 #include "mpi.h"
 
 int main(void){
 int id, Nmpi;
-int ierr = MPI_Init (NULL, NULL );
 
-if ( ierr != 0 )
-{
+if (MPI_Init (NULL, NULL)){
   fprintf(stderr, "MPI_Init fail.\n");
   return 1;
 }
 
-ierr = MPI_Comm_size(MPI_COMM_WORLD, &Nmpi);
+if (MPI_Comm_size(MPI_COMM_WORLD, &Nmpi) != 0){
+  fprintf(stderr, "MPI_Comm_size fail.\n");
+  return 1;
+}
 
-ierr = MPI_Comm_rank(MPI_COMM_WORLD, &id);
+if (MPI_Comm_rank(MPI_COMM_WORLD, &id) != 0){
+  fprintf(stderr, "MPI_Comm_rank fail.\n");
+  return 1;
+}
 
 if(Nmpi != 1) {
   fprintf(stderr, "MPI_Comm_size != 1.\n");
@@ -25,9 +30,7 @@ if(id != 0) {
   return 1;
 }
 
-ierr = MPI_Finalize();
-if (ierr != 0 )
-{
+if (MPI_Finalize() != 0){
   fprintf(stderr, "MPI_Finalize fail.\n");
   return 1;
 }

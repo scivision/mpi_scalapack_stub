@@ -1,13 +1,12 @@
-cmake_minimum_required(VERSION 3.15...3.23)
+cmake_minimum_required(VERSION 3.15...3.24)
 
 project(mpi_scalapack_stub
 LANGUAGES C CXX
-VERSION 1.0.0
+VERSION 1.0.1
 )
 
-enable_testing()
+# test by linking to example/ project
 
-option(BUILD_TESTING "Build and run the tests" ON)
 option(MPI1 "Build MPI-1 stub")
 option(fortran "Build MPI::MPI_Fortran" ON)
 
@@ -21,7 +20,7 @@ add_subdirectory(src)
 
 # --- main libraries
 add_library(mpi_c src/mpic.c)
-target_include_directories(mpi_c INTERFACE
+target_include_directories(mpi_c PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 $<INSTALL_INTERFACE:include>
 )
@@ -30,7 +29,7 @@ EXPORT_NAME MPI_C
 )
 
 add_library(mpi_cxx src/mpic.c)
-target_include_directories(mpi_cxx INTERFACE
+target_include_directories(mpi_cxx PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 $<INSTALL_INTERFACE:include>
 )
@@ -40,7 +39,7 @@ EXPORT_NAME MPI_CXX
 
 if(fortran)
   add_library(mpi_fortran src/mpi.f90 $<TARGET_OBJECTS:elapse>)
-  target_include_directories(mpi_fortran INTERFACE
+  target_include_directories(mpi_fortran PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   )
