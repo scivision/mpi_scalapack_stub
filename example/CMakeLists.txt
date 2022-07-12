@@ -6,6 +6,11 @@ enable_testing()
 
 option(fortran "enable MPI::MPI_Fortran" ON)
 
+if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
+  file(WRITE ${PROJECT_BINARY_DIR}/.gitignore "*")
+endif()
+
+
 include(CheckSourceCompiles)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/DllTestPath.cmake)
 
