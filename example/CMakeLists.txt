@@ -19,12 +19,12 @@ add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:$<IF:$<BOOL:${MSVC}>,/WX,-Werror
 add_executable(main_c main.c)
 target_link_libraries(main_c PRIVATE MPI::MPI_C)
 add_test(NAME MPIstubC COMMAND main_c)
+dll_test_path(MPI::MPI_C "MPIstubC")
 
 add_executable(main_cpp main.cpp)
 target_link_libraries(main_cpp PRIVATE MPI::MPI_CXX)
 add_test(NAME MPIstubC++ COMMAND main_cpp)
-
-dll_test_path(MPI::MPI_C "MPIstubC;MPIstubC++")
+dll_test_path(MPI::MPI_CXX "MPIstubC++")
 
 if(fortran)
   check_source_compiles(Fortran

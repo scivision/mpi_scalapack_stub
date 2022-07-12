@@ -1,4 +1,4 @@
-function(dll_test_path lib test_names)
+function(dll_test_path libs test_names)
 # if shared lib on Windows, need DLL on PATH
 
 if(NOT WIN32)
@@ -10,31 +10,67 @@ if(CMAKE_VERSION VERSION_LESS 3.22)
   return()
 endif()
 
+set(dll_mod)
 
-get_target_property(imtype ${lib} TYPE)
-if(NOT imtype STREQUAL "SHARED_LIBRARY")
-  message(DEBUG "${lib} is not a shared library, no need for ENVIRONMENT_MODIFICATION for ${test_names}")
-  return()
+foreach(lib IN LISTS libs)
+
+  get_target_property(ttype ${lib} TYPE)
+  if(ttype STREQUAL "STATIC_LIBRARY")
+    message(DEBUG "${lib} is ${ttype}. No need for ENVIRONMENT_MODIFICATION for ${test_names}")
+    continue()
+  endif()
+
+  foreach(bt IMPORTED_LOCATION IMPORTED_LOCATION_RELEASE IMPORTED_LOCATION_DEBUG)
+    get_target_property(imploc ${lib} ${bt})
+    if(imploc)
+      break()
+    endif()
+  endforeach()
+
+  get_target_property(intloc ${lib} INTERFACE_LINK_LIBRARIES)
+
+  if(imploc)
+    foreach(l IN LISTS imploc)
+      cmake_path(GET l PARENT_PATH loc)
+      if(IS_DIRECTORY ${loc})
+        list(APPEND dll_mod "PATH=path_list_append:${loc}")
+        cmake_path(SET d NORMALIZE ${loc}/../bin)
+        # can't check bin/stem.dll as some libs add arbitrary stuff to stem
+        if(IS_DIRECTORY ${d})
+          list(APPEND dll_mod "PATH=path_list_append:${d}")
+        endif()
+      endif()
+    endforeach()
+  elseif(intloc)
+    foreach(l IN LISTS intloc)
+      cmake_path(GET l PARENT_PATH loc)
+      if(IS_DIRECTORY ${loc})
+        list(APPEND dll_mod "PATH=path_list_append:${loc}")
+        cmake_path(SET d NORMALIZE ${loc}/../bin)
+        if(IS_DIRECTORY ${d})
+          list(APPEND dll_mod "PATH=path_list_append:${d}")
+        endif()
+      endif()
+    endforeach()
+  elseif(EXISTS ${lib})
+    list(APPEND dll_mod "PATH=path_list_append:$<TARGET_FILE_DIR:${lib}>")
+  else()
+    message(DEBUG "did not find library for ${lib} for ${test_names}")
+  endif()
+
+endforeach()
+
+list(REMOVE_DUPLICATES dll_mod)
+
+if(dll_mod)
+  message(VERBOSE "environment_modification ${dll_mod} for ${test_names}")
+
+  set_tests_properties(${test_names} PROPERTIES
+  ENVIRONMENT_MODIFICATION "${dll_mod}"
+  )
+else()
+  message(VERBOSE "no environment_modification for ${test_names}")
 endif()
 
-get_target_property(imconf ${lib} IMPORTED_CONFIGURATIONS)
-list(GET imconf 0 imconf)
-# assume first configuration is desired
-if(NOT imconf)
-  message(VERBOSE "did not find imported config for ${lib}")
-  return()
-endif()
-
-get_target_property(imloc ${lib} IMPORTED_LOCATION_${imconf})
-if(NOT imconf)
-  message(VERBOSE "did not find imported location for ${lib}")
-  return()
-endif()
-
-cmake_path(GET imloc PARENT_PATH imloc)
-
-set_tests_properties(${test_names} PROPERTIES
-ENVIRONMENT_MODIFICATION PATH=path_list_append:${imloc}
-)
 
 endfunction(dll_test_path)
