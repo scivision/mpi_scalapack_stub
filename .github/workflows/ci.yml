@@ -42,7 +42,7 @@ jobs:
       run: cmake --install build
 
     - name: Config example
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }} --log-level=VERBOSE
+      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }} --log-level=DEBUG
     - name: build example
       run: cmake --build example/build --parallel
     - name: test example
