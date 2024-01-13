@@ -2,6 +2,7 @@ name: ci
 
 env:
   HOMEBREW_NO_INSTALL_CLEANUP: 1
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
 
 on:
   push:
@@ -19,59 +20,25 @@ jobs:
     strategy:
       matrix:
         shared: [true, false]
-        img: [
-          {os: ubuntu-latest, fc: gfortran},
-          {os: macos-latest, fc: gfortran-11},
-        ]
+        os: ['ubuntu-latest']
 
-    runs-on: ${{ matrix.img.os }}
+    runs-on: ${{ matrix.os }}
     env:
-      FC: ${{ matrix.img.fc }}
+      FC: gfortran-13
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Config library
       run: cmake -B build -DMPI1:BOOL=on --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
     - name: build library
-      run: cmake --build build --parallel
+      run: cmake --build build
     - name: install library
       run: cmake --install build
 
     - name: Config example
       run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }}
     - name: build example
-      run: cmake --build example/build --parallel
-    - name: test example
-      run: ctest --test-dir example/build -V
-
-  windows:
-    runs-on: windows-latest
-    env:
-      CMAKE_GENERATOR: "MinGW Makefiles"
-
-    steps:
-    - uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        install: >-
-          mingw-w64-x86_64-gcc-fortran
-
-    - name: Put MSYS2_MinGW64 on PATH
-      run: echo "${{ runner.temp }}/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-    - uses: actions/checkout@v2
-
-    - name: Config library
-      run: cmake -B build -DMPI1:BOOL=on --install-prefix=${{ runner.temp }} -DBUILD_SHARED_LIBS:BOOL=${{ matrix.shared }}
-    - name: build library
-      run: cmake --build build --parallel
-    - name: install library
-      run: cmake --install build
-
-    - name: Config example
-      run: cmake -S example -B example/build -DCMAKE_PREFIX_PATH=${{ runner.temp }} --log-level=DEBUG
-    - name: build example
-      run: cmake --build example/build --parallel
+      run: cmake --build example/build
     - name: test example
       run: ctest --test-dir example/build -V

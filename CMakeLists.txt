@@ -1,21 +1,23 @@
-cmake_minimum_required(VERSION 3.15...3.24)
+cmake_minimum_required(VERSION 3.15)
 
 project(mpi_scalapack_stub
 LANGUAGES C CXX
-VERSION 1.0.1
+VERSION 1.1.0
 )
 
-# test by linking to example/ project
-
-include(cmake/options.cmake)
+include(options.cmake)
 
 if(fortran)
   enable_language(Fortran)
 endif()
 
-include(cmake/options.cmake)
+# scalapack
+add_library(elapse OBJECT src/elapse.c)
+target_include_directories(elapse INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-add_subdirectory(src)
+if(fortran)
+  add_library(scalapack src/scalapack.f90 src/blacs.f90)
+endif()
 
 # --- main libraries
 add_library(mpi_c src/mpic.c)
@@ -23,18 +25,14 @@ target_include_directories(mpi_c PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 $<INSTALL_INTERFACE:include>
 )
-set_target_properties(mpi_c PROPERTIES
-EXPORT_NAME MPI_C
-)
+set_property(TARGET mpi_c PROPERTY EXPORT_NAME MPI_C)
 
 add_library(mpi_cxx src/mpic.c)
 target_include_directories(mpi_cxx PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 $<INSTALL_INTERFACE:include>
 )
-set_target_properties(mpi_cxx PROPERTIES
-EXPORT_NAME MPI_CXX
-)
+set_property(TARGET mpi_cxx PROPERTY EXPORT_NAME MPI_CXX)
 
 if(fortran)
   add_library(mpi_fortran src/mpi.f90 $<TARGET_OBJECTS:elapse>)
@@ -51,21 +49,12 @@ if(fortran)
   Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include
   )
 
-  install(TARGETS mpi_fortran
-  EXPORT ${PROJECT_NAME}-targets
-  )
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpi.mod
-  TYPE INCLUDE
-  )
-
+  install(TARGETS mpi_fortran EXPORT ${PROJECT_NAME}-targets)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/mpi.mod TYPE INCLUDE)
 endif()
 
-install(TARGETS mpi_c mpi_cxx
-EXPORT ${PROJECT_NAME}-targets
-)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mpi.h
-TYPE INCLUDE
-)
+install(TARGETS mpi_c mpi_cxx EXPORT ${PROJECT_NAME}-targets)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mpi.h TYPE INCLUDE)
 
 include(cmake/install.cmake)
 
@@ -80,3 +69,5 @@ if(fortran)
   add_library(MPI::MPI_Fortran INTERFACE IMPORTED GLOBAL)
   target_link_libraries(MPI::MPI_Fortran INTERFACE mpi_fortran)
 endif()
+
+file(GENERATE OUTPUT .gitignore CONTENT "*")
